@@ -1,4 +1,9 @@
+import os
+import sys
+
 import wx
+
+sys.path.insert(0, os.path.dirname(os.getcwd()))  # NOQA
 
 from kurier.widgets.history import HistoryPanel
 from kurier.widgets.work_area import WorkAreaPanel
