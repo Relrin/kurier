@@ -11,7 +11,7 @@ class HistoryPanel(wx.Panel):
         self.InitUI()
 
     def InitUI(self):
-        history_input = wx.TextCtrl(self)
+        history_input = wx.SearchCtrl(self)
         self.grid.Add(history_input, pos=(0, 0), flag=wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, border=DEFAULT_GAP)
 
         history_entries = wx.ListCtrl(self)
