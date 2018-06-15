@@ -9,11 +9,13 @@ class WorkAreaPanel(wx.Panel):
     def __init__(self, parent, *args, **kwargs):
         super(WorkAreaPanel, self).__init__(parent, *args, **kwargs)
         self.notebook = CustomAuiNotebook(self)
-        self.sizer = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
+        self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
+
         self.InitUI()
 
     def InitUI(self):
-        self.sizer.Add(self.notebook, pos=(0, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
-        self.sizer.AddGrowableCol(0)
-        self.sizer.AddGrowableRow(0)
-        self.SetSizer(self.sizer)
+        self.grid.Add(self.notebook, pos=(0, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+
+        self.grid.AddGrowableCol(0)
+        self.grid.AddGrowableRow(0)
+        self.SetSizer(self.grid)
