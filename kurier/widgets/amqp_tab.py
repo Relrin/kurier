@@ -1,35 +1,29 @@
 import wx
 
-from kurier.constants import DEFAULT_GAP, DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
+from kurier.constants import DEFAULT_GAP
 from kurier.widgets.request.ui import RequestUIBlock
 from kurier.widgets.response.ui import ResponseUIBlock
 
 
 class AmqpTab(wx.Panel):
+    MINIMUM_PANE_SIZE = 0.3
+    MINIMAL_PANEL_HEIGHT = 600
+
     def __init__(self, parent, *args, **kwargs):
         super(AmqpTab, self).__init__(parent, *args, **kwargs)
-        self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.window_splitter = wx.SplitterWindow(self, style=wx.SP_LIVE_UPDATE)
         self.request_ui_block = None
 
         self.InitUI()
 
     def InitUI(self):
-        self.request_ui_block = RequestUIBlock(self)
-        self.grid.Add(
-            self.request_ui_block, pos=(0, 0),
-            flag=wx.EXPAND | wx.LEFT | wx.TOP | wx.RIGHT,
-            border=DEFAULT_GAP
-        )
+        self.request_ui_block = RequestUIBlock(self.window_splitter)
+        self.response_ui_block = ResponseUIBlock(self.window_splitter)
 
-        self.response_ui_block = ResponseUIBlock(self)
-        self.grid.Add(
-            self.response_ui_block,
-            pos=(1, 0),
-            flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
-            border=DEFAULT_GAP
-        )
+        self.window_splitter.SplitHorizontally(self.request_ui_block, self.response_ui_block)
+        self.window_splitter.SetSashGravity(self.MINIMUM_PANE_SIZE)
+        self.window_splitter.SetMinimumPaneSize(self.MINIMAL_PANEL_HEIGHT * self.MINIMUM_PANE_SIZE)
 
-        self.grid.AddGrowableCol(0)
-        self.grid.AddGrowableRow(0)
-        self.grid.AddGrowableRow(1)
-        self.SetSizer(self.grid)
+        self.sizer.Add(self.window_splitter, 1, wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.SetSizer(self.sizer)
