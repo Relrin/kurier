@@ -1,11 +1,14 @@
 import wx
 
+from wx.lib.scrolledpanel import ScrolledPanel
+
 from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
 from kurier.widgets.request.notebook import RequestNotebook
 
 
-class RequestUIBlock(wx.Panel):
+class RequestUIBlock(ScrolledPanel):
     SEND_BUTTON_FONT_SIZE = 10
+    HORIZONTAL_SCROLL_INC = DEFAULT_GAP // 2 - 1
 
     def __init__(self, *args, **kwargs):
         super(RequestUIBlock, self).__init__(*args, **kwargs)
@@ -55,3 +58,4 @@ class RequestUIBlock(wx.Panel):
 
         self.static_box_sizer.Add(self.grid, proportion=1, flag=wx.EXPAND | wx.ALL)
         self.SetSizer(self.static_box_sizer)
+        self.SetupScrolling(scroll_y=False, rate_x=self.HORIZONTAL_SCROLL_INC)
