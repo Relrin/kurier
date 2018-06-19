@@ -17,7 +17,6 @@ class RequestPropertiesTab(wx.Panel):
             columns=self.USED_COLUMNS,
             utility_row_text=self.UTILITY_ROW_TEXT
         )
-        self.available_choices = wx.Choice(self.properties_ctrl, choices=self.AVAILABLE_PROPERTIES)
 
         self.InitUI()
 
@@ -36,10 +35,12 @@ class RequestPropertiesTab(wx.Panel):
         self.Unbind(wx.EVT_LIST_ITEM_SELECTED, handler=self.OnListItemSelected)
 
     def AddNewHeader(self, header_name, value=wx.EmptyString):
-        self.properties_ctrl.AddNewHeader(header_name, value)
+        insert_index = self.properties_ctrl.GetItemCount() - 1
+        self.properties_ctrl.AddNewRow(header_name, value, insert_index)
 
-        if self.properties_ctrl.GetItemCount() > len(self.AVAILABLE_PROPERTIES):
-            self.DeleteUtilityRow()
+        # TODO: Add auto-completion for the property names so that they will be unique
+        # if self.properties_ctrl.GetItemCount() > len(self.AVAILABLE_PROPERTIES):
+        #     self.DeleteUtilityRow()
 
     def OnListItemSelected(self, event):
         event.Skip()
