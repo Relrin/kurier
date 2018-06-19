@@ -19,9 +19,7 @@ class ResponsePropertiesTab(wx.Panel):
 
     def AddRows(self, iterable):
         for key, value in iterable:
-            total_rows = self.properties_ctrl.GetItemCount()
-            index = self.properties_ctrl.InsertItem(total_rows, label=key)
-            self.properties_ctrl.SetItem(index, 1, value)
+            self.properties_ctrl.AddNewRow(key, value)
 
     def DeleteAllRows(self):
         self.properties_ctrl.DeleteAllItems()
