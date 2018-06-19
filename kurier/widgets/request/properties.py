@@ -1,7 +1,7 @@
 import wx
 
 from kurier.constants import DEFAULT_MESSAGE_PROPERTIES
-from kurier.widgets.resizable_list_ctrl import ResizableListCtrl
+from kurier.widgets.resizable_list_ctrl import EditableListCtrl
 
 
 class RequestPropertiesTab(wx.Panel):
@@ -12,7 +12,7 @@ class RequestPropertiesTab(wx.Panel):
     def __init__(self, *args, **kwargs):
         super(RequestPropertiesTab, self).__init__(*args, **kwargs)
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.properties_ctrl = ResizableListCtrl(
+        self.properties_ctrl = EditableListCtrl(
             self,
             columns=self.USED_COLUMNS,
             utility_row_text=self.UTILITY_ROW_TEXT
