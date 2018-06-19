@@ -34,7 +34,7 @@ class ResizableListCtrl(ListCtrlAutoWidthMixin, wx.ListCtrl):
         last_item_index = self.GetItemCount() - 1
         self.DeleteItem(last_item_index)
 
-    def AddNewHeader(self, header_name, value=wx.EmptyString):
-        insert_index = self.GetItemCount() - 1
-        self.InsertItem(insert_index, header_name)
+    def AddNewRow(self, key, value=wx.EmptyString, index=None):
+        insert_index = index if index is not None else self.GetItemCount()
+        self.InsertItem(insert_index, key)
         self.SetItem(insert_index, 1, value)
