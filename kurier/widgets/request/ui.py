@@ -14,6 +14,7 @@ class RequestUIBlock(ScrolledPanel):
         super(RequestUIBlock, self).__init__(*args, **kwargs)
         self.static_box_sizer = wx.StaticBoxSizer(parent=self, orient=wx.VERTICAL, label="Request")
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
+        self.connection_string = None
         self.queue_name_input = None
         self.exchange_name_input = None
         self.routing_key_input = None
@@ -23,28 +24,38 @@ class RequestUIBlock(ScrolledPanel):
         self.InitUI()
 
     def InitUI(self):
+        self.connection_string = wx.TextCtrl(self)
+        self.connection_string.SetHint("Connection string in `amqp://username:password@host:port/vhost/?query` format")
+        self.grid.Add(
+            self.connection_string,
+            pos=(0, 0),
+            span=(0, 4),
+            flag=wx.EXPAND | wx.ALL,
+            border=DEFAULT_GAP
+        )
+
         self.queue_name_input = wx.TextCtrl(self)
         self.queue_name_input.SetHint("Queue name")
-        self.grid.Add(self.queue_name_input, pos=(0, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.grid.Add(self.queue_name_input, pos=(1, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.exchange_name_input = wx.TextCtrl(self)
         self.exchange_name_input.SetHint("Exchange name")
-        self.grid.Add(self.exchange_name_input, pos=(0, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.grid.Add(self.exchange_name_input, pos=(1, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.routing_key_input = wx.TextCtrl(self)
         self.routing_key_input.SetHint("Routing key")
-        self.grid.Add(self.routing_key_input, pos=(0, 2), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.grid.Add(self.routing_key_input, pos=(1, 2), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.send_button = wx.Button(self, label="Send", style=wx.BORDER_NONE)
         self.send_button.SetBackgroundColour("#20A5FF")
         self.send_button.SetForegroundColour('#FFFFFF')
         self.send_button.SetFont(wx.Font(wx.FontInfo(self.SEND_BUTTON_FONT_SIZE).Bold().AntiAliased()))
-        self.grid.Add(self.send_button, pos=(0, 3), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.grid.Add(self.send_button, pos=(1, 3), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.request_data_notebook = RequestNotebook(self)
         self.grid.Add(
             self.request_data_notebook,
-            pos=(1, 0),
+            pos=(2, 0),
             span=(0, 4),
             flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
             border=DEFAULT_GAP
@@ -54,7 +65,7 @@ class RequestUIBlock(ScrolledPanel):
         self.grid.AddGrowableCol(1, proportion=10)
         self.grid.AddGrowableCol(2, proportion=10)
         self.grid.AddGrowableCol(3, proportion=1)
-        self.grid.AddGrowableRow(1, proportion=1)
+        self.grid.AddGrowableRow(2, proportion=1)
 
         self.static_box_sizer.Add(self.grid, proportion=1, flag=wx.EXPAND | wx.ALL)
         self.SetSizer(self.static_box_sizer)
