@@ -25,7 +25,7 @@ class ResponseUIBlock(wx.Panel):
             self.request_data_notebook,
             pos=(0, 0),
             span=(0, 4),
-            flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
+            flag=wx.EXPAND | wx.ALL,
             border=DEFAULT_GAP
         )
         self.grid.AddGrowableCol(0, proportion=10)
