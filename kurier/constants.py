@@ -20,3 +20,8 @@ DEFAULT_MESSAGE_PROPERTIES = (
     "app_id",
     "cluster_id"
 )
+
+WRONG_JSON_UNICODE_SYMBOLS = [
+    ("\u2028", "\\u2028"),
+    ("\u2029", "\\u2029"),
+]
