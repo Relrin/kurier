@@ -6,7 +6,7 @@ from kurier.widgets.response.ui import ResponseUIBlock
 
 
 class AmqpTab(wx.Panel):
-    MINIMUM_PANE_SIZE = 0.3
+    MINIMUM_PANE_SIZE = 0.45
     MINIMAL_PANEL_HEIGHT = 600
 
     def __init__(self, parent, *args, **kwargs):
