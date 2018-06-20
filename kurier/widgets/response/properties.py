@@ -1,6 +1,6 @@
 import wx
 
-from kurier.widgets.resizable_list_ctrl import ResizableListCtrl
+from kurier.widgets.list_ctrl import ResizableListCtrl
 
 
 class ResponsePropertiesTab(wx.Panel):

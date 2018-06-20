@@ -1,7 +1,7 @@
 import wx
 
 from kurier.constants import DEFAULT_MESSAGE_PROPERTIES
-from kurier.widgets.resizable_list_ctrl import EditableListCtrl
+from kurier.widgets.list_ctrl import EditableListCtrl
 
 
 class RequestPropertiesTab(wx.Panel):
