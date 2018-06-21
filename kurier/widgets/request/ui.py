@@ -15,9 +15,11 @@ class RequestUIBlock(ScrolledPanel):
         self.static_box_sizer = wx.StaticBoxSizer(parent=self, orient=wx.VERTICAL, label="Request")
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
         self.connection_string = None
-        self.queue_name_input = None
-        self.exchange_name_input = None
-        self.routing_key_input = None
+        self.request_queue_name_input = None
+        self.request_exchange_name_input = None
+        self.request_routing_key_input = None
+        self.response_queue_name_input = None
+        self.response_exchange_name_input = None
         self.send_button = None
         self.request_data_notebook = None
 
@@ -34,17 +36,25 @@ class RequestUIBlock(ScrolledPanel):
             border=DEFAULT_GAP
         )
 
-        self.queue_name_input = wx.TextCtrl(self)
-        self.queue_name_input.SetHint("Queue name")
-        self.grid.Add(self.queue_name_input, pos=(1, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.request_queue_name_input = wx.TextCtrl(self)
+        self.request_queue_name_input.SetHint("Request queue name")
+        self.grid.Add(self.request_queue_name_input, pos=(1, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
-        self.exchange_name_input = wx.TextCtrl(self)
-        self.exchange_name_input.SetHint("Exchange name")
-        self.grid.Add(self.exchange_name_input, pos=(1, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.request_exchange_name_input = wx.TextCtrl(self)
+        self.request_exchange_name_input.SetHint("Request exchange name")
+        self.grid.Add(self.request_exchange_name_input, pos=(1, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
-        self.routing_key_input = wx.TextCtrl(self)
-        self.routing_key_input.SetHint("Routing key")
-        self.grid.Add(self.routing_key_input, pos=(1, 2), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.request_routing_key_input = wx.TextCtrl(self)
+        self.request_routing_key_input.SetHint("Request routing key")
+        self.grid.Add(self.request_routing_key_input, pos=(1, 2), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+
+        self.response_queue_name_input = wx.TextCtrl(self)
+        self.response_queue_name_input.SetHint("Response queue name")
+        self.grid.Add(self.response_queue_name_input, pos=(2, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+
+        self.response_exchange_name_input = wx.TextCtrl(self)
+        self.response_exchange_name_input.SetHint("Response exchange name")
+        self.grid.Add(self.response_exchange_name_input, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.send_button = wx.Button(self, label="Send", style=wx.BORDER_NONE)
         self.send_button.SetBackgroundColour("#20A5FF")
@@ -55,7 +65,7 @@ class RequestUIBlock(ScrolledPanel):
         self.request_data_notebook = RequestNotebook(self)
         self.grid.Add(
             self.request_data_notebook,
-            pos=(2, 0),
+            pos=(3, 0),
             span=(0, 4),
             flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
             border=DEFAULT_GAP
@@ -65,7 +75,7 @@ class RequestUIBlock(ScrolledPanel):
         self.grid.AddGrowableCol(1, proportion=10)
         self.grid.AddGrowableCol(2, proportion=10)
         self.grid.AddGrowableCol(3, proportion=1)
-        self.grid.AddGrowableRow(2, proportion=1)
+        self.grid.AddGrowableRow(3, proportion=1)
 
         self.static_box_sizer.Add(self.grid, proportion=1, flag=wx.EXPAND | wx.ALL)
         self.SetSizer(self.static_box_sizer)
