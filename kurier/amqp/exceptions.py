@@ -1,0 +1,4 @@
+
+
+class AmqpRequestCancelled(Exception):
+    pass
