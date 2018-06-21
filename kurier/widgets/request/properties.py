@@ -48,4 +48,4 @@ class RequestPropertiesTab(wx.Panel):
 
         # TODO: Add new row and focus on selection a property from ComboBox (dynamic)
         if row_info.GetId() == self.properties_ctrl.GetItemCount() - 1:
-            self.AddNewHeader('new')
+            self.AddNewHeader('Key')
