@@ -15,7 +15,6 @@ class RequestUIBlock(ScrolledPanel):
         self.static_box_sizer = wx.StaticBoxSizer(parent=self, orient=wx.VERTICAL, label="Request")
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
         self.connection_string = None
-        self.request_queue_name_input = None
         self.request_exchange_name_input = None
         self.request_routing_key_input = None
         self.response_queue_name_input = None
@@ -36,17 +35,13 @@ class RequestUIBlock(ScrolledPanel):
             border=DEFAULT_GAP
         )
 
-        self.request_queue_name_input = wx.TextCtrl(self)
-        self.request_queue_name_input.SetHint("Request queue name")
-        self.grid.Add(self.request_queue_name_input, pos=(1, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
-
         self.request_exchange_name_input = wx.TextCtrl(self)
         self.request_exchange_name_input.SetHint("Request exchange name")
-        self.grid.Add(self.request_exchange_name_input, pos=(1, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.grid.Add(self.request_exchange_name_input, pos=(1, 0), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.request_routing_key_input = wx.TextCtrl(self)
         self.request_routing_key_input.SetHint("Request routing key")
-        self.grid.Add(self.request_routing_key_input, pos=(1, 2), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+        self.grid.Add(self.request_routing_key_input, pos=(1, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.response_queue_name_input = wx.TextCtrl(self)
         self.response_queue_name_input.SetHint("Response queue name")
@@ -55,6 +50,10 @@ class RequestUIBlock(ScrolledPanel):
         self.response_exchange_name_input = wx.TextCtrl(self)
         self.response_exchange_name_input.SetHint("Response exchange name")
         self.grid.Add(self.response_exchange_name_input, pos=(2, 1), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
+
+        self.response_exchange_name_input = wx.TextCtrl(self)
+        self.response_exchange_name_input.SetHint("Response routing key")
+        self.grid.Add(self.response_exchange_name_input, pos=(2, 2), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.send_button = wx.Button(self, label="Send", style=wx.BORDER_NONE)
         self.send_button.SetBackgroundColour("#20A5FF")
