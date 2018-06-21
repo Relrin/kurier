@@ -27,7 +27,7 @@ class RequestUIBlock(ScrolledPanel):
 
     def InitUI(self):
         self.connection_string = wx.TextCtrl(self)
-        self.connection_string.SetHint("Connection string in `amqp://username:password@host:port/vhost/?query` format")
+        self.connection_string.SetHint("Connection string in `schema://username:password@host:port/vhost/?query` format")
         self.grid.Add(
             self.connection_string,
             pos=(0, 0),
