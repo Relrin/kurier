@@ -12,6 +12,7 @@ from kurier.constants import DEFAULT_MESSAGE_PROPERTIES
 from kurier.amqp.events import CUSTOM_EVT_AMQP_RESPONSE, AmqpResponseEvent
 from kurier.amqp.exceptions import AmqpInvalidUrl, AmqpInvalidExchange, \
     AmqpUnroutableError, AmqpRequestCancelled
+from kurier.amqp.response import Response
 from kurier.utils.multithreading import Thread
 
 
@@ -37,21 +38,17 @@ class RequestSendThread(Thread):
 
         super(RequestSendThread, self).__init__(event, *args, **kwargs)
         self.parent = parent
-        self.waiter = Event()
 
         self._connection = None
         self._channel = None
         self._response_queue_name = None
 
-    def IsResponseReturned(self):
-        return self.waiter.is_set()
-
-    def CancellOrContinueTask(self):
+    def CancelOrContinueTask(self):
         if self.IsEventSet():
             raise AmqpRequestCancelled()
 
     def GetConnection(self):
-        self.CancellOrContinueTask()
+        self.CancelOrContinueTask()
         try:
             self._connection = BlockingConnection(self.connection_parameters)
         except IncompatibleProtocolError:
@@ -59,12 +56,12 @@ class RequestSendThread(Thread):
         return self._connection
 
     def CreateChannel(self, connection):
-        self.CancellOrContinueTask()
+        self.CancelOrContinueTask()
         self._channel = connection.channel()
         return self._channel
 
     def DeclareQueue(self, channel, queue_name):
-        self.CancellOrContinueTask()
+        self.CancelOrContinueTask()
         declare_result = channel.queue_declare(
             queue=queue_name,
             exclusive=True,
@@ -76,7 +73,7 @@ class RequestSendThread(Thread):
         return self._response_queue_name
 
     def BindQueue(self, channel, queue_name, exchange, routing_key):
-        self.CancellOrContinueTask()
+        self.CancelOrContinueTask()
         try:
             channel.queue_bind(
                 queue=queue_name,
@@ -90,7 +87,7 @@ class RequestSendThread(Thread):
             raise AmqpInvalidExchange(message)
 
     def SetChannelQos(self, channel):
-        self.CancellOrContinueTask()
+        self.CancelOrContinueTask()
         channel.basic_qos(
             prefetch_count=1,
             prefetch_size=0,
@@ -98,7 +95,7 @@ class RequestSendThread(Thread):
         )
 
     def PublishMessage(self, channel):
-        self.CancellOrContinueTask()
+        self.CancelOrContinueTask()
 
         properties = {'headers': self.headers}
         properties.update({
@@ -116,10 +113,38 @@ class RequestSendThread(Thread):
         except (UnroutableError, NackError) as exc:
             raise AmqpUnroutableError(repr(exc))
 
-    # TODO: Implement consuming only one incoming message
-    def ConsumeResponse(self, channel):
-        self.CancellOrContinueTask()
-        return None
+    def ConsumeResponse(self, channel, queue_name):
+        self.CancelOrContinueTask()
+
+        method_frame = None
+        response = Response()
+        while method_frame is None:
+            self.CancelOrContinueTask()
+
+            method_frame, header_frame, body = channel.basic_get(queue_name)
+            if method_frame:
+                channel.basic_ack(method_frame.delivery_tag)
+                properties = {
+                    key: getattr(header_frame, key, None)
+                    for key in DEFAULT_MESSAGE_PROPERTIES
+                }
+                headers = header_frame.headers
+                response = Response(properties=properties, headers=headers, body=body)
+                break
+
+        return response
+
+    def ReturnResponse(self, response):
+        self.CancelOrContinueTask()
+
+        wx_event = AmqpResponseEvent(
+            CUSTOM_EVT_AMQP_RESPONSE,
+            wx.ID_ANY,
+            properties=response.properties,
+            headers=response.headers,
+            body=response.body,
+        )
+        wx.PostEvent(self.parent, wx_event)
 
     def CleanResources(self):
         self._response_queue_name = None
@@ -134,24 +159,14 @@ class RequestSendThread(Thread):
 
     def run(self):
         try:
-            self.waiter.clear()
-
             connection = self.GetConnection()
             channel = self.CreateChannel(connection)
             queue_name = self.DeclareQueue(channel, self.response_queue)
-            self.BindQueue(channel, queue_name, self.response_exchange, queue_name)
+            self.BindQueue(channel, queue_name, self.response_exchange, self.response_routing_key)
             self.SetChannelQos(channel)
             self.PublishMessage(channel)
-            response = self.ConsumeResponse(channel)
-
-            wx_event = AmqpResponseEvent(
-                CUSTOM_EVT_AMQP_RESPONSE,
-                wx.ID_ANY,
-                properties=None,
-                headers=None,
-                body=None,
-            )
-            wx.PostEvent(self.parent, wx_event)
+            response = self.ConsumeResponse(channel, queue_name)
+            self.ReturnResponse(response)
         except AmqpRequestCancelled:
             pass
         finally:
