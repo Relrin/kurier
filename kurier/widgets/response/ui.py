@@ -1,6 +1,9 @@
 import wx
 
-from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
+from wx.lib.pubsub import pub
+
+from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
+    AMQP_RESPONSE_RECEIVED_TOPIC
 from kurier.widgets.response.notebook import ResponseNotebook
 
 
@@ -16,6 +19,8 @@ class ResponseUIBlock(wx.Panel):
         self.routing_key_input = None
         self.send_button = None
         self.request_data_notebook = None
+
+        pub.subscribe(self.OnAmqpResponse, AMQP_RESPONSE_RECEIVED_TOPIC)
 
         self.InitUI()
 
@@ -33,3 +38,6 @@ class ResponseUIBlock(wx.Panel):
 
         self.static_box_sizer.Add(self.grid, proportion=1, flag=wx.EXPAND | wx.ALL)
         self.SetSizer(self.static_box_sizer)
+
+    def OnAmqpResponse(self, message):
+        self.request_data_notebook.RenderResponse(message)

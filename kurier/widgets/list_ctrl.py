@@ -40,9 +40,18 @@ class ResizableListCtrl(ListCtrlAutoWidthMixin, wx.ListCtrl):
         self.has_utility_row = False
 
     def AddNewRow(self, key, value=wx.EmptyString, index=None):
+        if value is None:
+            return
+
         insert_index = index if index is not None else self.GetItemCount()
+        value = self.ValueToString(value)
         self.InsertItem(insert_index, key)
         self.SetItem(insert_index, 1, value)
+
+    def ValueToString(self, value):
+        if value in [wx.EmptyString, ""]:
+            return wx.EmptyString
+        return str(value)
 
 
 class EditableListCtrl(TextEditMixin, ResizableListCtrl):

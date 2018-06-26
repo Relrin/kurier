@@ -23,3 +23,7 @@ class ResponseDataTab(wx.Panel):
 
     def Clean(self):
         self.message_body_ctrl.Clear()
+
+    def RenderBody(self, body, mimetype):
+        self.Clean()
+        self.SetText(body, mimetype)

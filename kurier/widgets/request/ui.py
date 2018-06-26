@@ -1,8 +1,11 @@
 import wx
 
+from wx.lib.pubsub import pub
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
+from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
+    AMQP_RESPONSE_RECEIVED_TOPIC
+from kurier.amqp.events import EVT_AMQP_RESPONSE
 from kurier.amqp.rpc import RpcAmqpClient
 from kurier.widgets.request.notebook import RequestNotebook
 
@@ -120,15 +123,7 @@ class RequestUIBlock(ScrolledPanel):
 
     def BindUI(self):
         self.Bind(wx.EVT_BUTTON, self.OnSendButtonClick)
-
-    def OnSendButtonClick(self, _event):
-        if self.send_button.GetLabel() == self.SEND_REQUEST_BUTTON_LABEL:
-            self.send_button.SetLabel(self.CANCEL_REQUEST_BUTTON_LABEL)
-            request_parameters = self.GetRequestParameters()
-            self.amqp_client.SendRequest(**request_parameters)
-        else:
-            self.amqp_client.CancelRequest()
-            self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
+        self.Bind(EVT_AMQP_RESPONSE, self.OnAmqpResponse)
 
     def GetRequestParameters(self):
         return {
@@ -142,3 +137,17 @@ class RequestUIBlock(ScrolledPanel):
             "properties": self.request_data_notebook.GetRequestProperties(),
             "headers": self.request_data_notebook.GetRequestHeaders()
         }
+
+    def OnSendButtonClick(self, _event):
+        if self.send_button.GetLabel() == self.SEND_REQUEST_BUTTON_LABEL:
+            self.send_button.SetLabel(self.CANCEL_REQUEST_BUTTON_LABEL)
+            request_parameters = self.GetRequestParameters()
+            self.amqp_client.SendRequest(**request_parameters)
+        else:
+            self.amqp_client.CancelRequest()
+            self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
+
+    def OnAmqpResponse(self, event):
+        response = event.GetResponse()
+        pub.sendMessage(AMQP_RESPONSE_RECEIVED_TOPIC, message=response)
+        self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)

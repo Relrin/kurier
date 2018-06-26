@@ -23,3 +23,7 @@ class ResponseHeadersTab(wx.Panel):
 
     def DeleteAllRows(self):
         self.headers_ctrl.DeleteAllItems()
+
+    def RenderHeader(self, headers):
+        self.DeleteAllRows()
+        self.AddRows(list(headers.items()))

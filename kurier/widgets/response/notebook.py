@@ -35,3 +35,9 @@ class ResponseNotebook(AuiNotebook):
 
         self.data_tab = ResponseDataTab(self)
         self.AddPage(self.data_tab, "Message body", select=False)
+
+    def RenderResponse(self, response):
+        mimetype = response.properties.get("content_type", None)
+        self.properties_tab.RenderProperties(response.properties)
+        self.headers_tab.RenderHeader(response.headers)
+        self.data_tab.RenderBody(response.body, mimetype)

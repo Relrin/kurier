@@ -25,3 +25,5 @@ WRONG_JSON_UNICODE_SYMBOLS = [
     ("\u2028", "\\u2028"),
     ("\u2029", "\\u2029"),
 ]
+
+AMQP_RESPONSE_RECEIVED_TOPIC = "AmqpResponseReceived"
