@@ -1,7 +1,7 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 
 
-class BaseRenderer(object):
+class BaseRenderer(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod

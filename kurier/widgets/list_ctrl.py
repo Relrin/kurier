@@ -16,7 +16,7 @@ class ResizableListCtrl(ListCtrlAutoWidthMixin, wx.ListCtrl):
 
     def __init__(self, *args, **kwargs):
         self.columns = kwargs.pop("columns", self.DEFAULT_COLUMNS)
-        self.default_utility_row_text = kwargs.pop("utility_row_text", self.DEFAULT_UTILITY_ROW_TEXT)
+        self.default_utility_row_text = kwargs.pop("utility_row_text", self.DEFAULT_UTILITY_ROW_TEXT)  # NOQA
 
         kwargs['style'] = kwargs.get("style", self.DEFAULT_LIST_CTRL_STYLE)
         wx.ListCtrl.__init__(self, *args, **kwargs)

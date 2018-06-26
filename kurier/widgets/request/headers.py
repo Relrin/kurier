@@ -39,4 +39,3 @@ class RequestHeadersTab(wx.Panel):
         # TODO: Add new row and focus on the first column (header name)
         if row_info.GetId() == self.headers_ctrl.GetItemCount() - 1:
             self.AddNewHeader('Key')
-
