@@ -175,14 +175,15 @@ class RequestSendThread(Thread):
 
 class RpcAmqpClient(object):
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, thread_cls=RequestSendThread, *args, **kwargs):
         self.parent = parent
         self.event = Event()
         self.thread = None
+        self.thread_cls = thread_cls
 
     def SendRequest(self, *args, **kwargs):
         self.event.clear()
-        self.thread = RequestSendThread(self.parent, self.event, *args, **kwargs)
+        self.thread = self.thread_cls(self.parent, self.event, *args, **kwargs)
         self.thread.start()
 
     def CancelRequest(self):
