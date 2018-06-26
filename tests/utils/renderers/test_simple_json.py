@@ -30,5 +30,3 @@ def test_json_renderer_returns_beautified_json(data, expected):
 def test_json_renderer_returns_invalid_data_as_is(data, expected):
     instance = JsonRenderer()
     assert instance.Render(data) == expected
-
-

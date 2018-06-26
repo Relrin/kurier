@@ -35,10 +35,11 @@ class RequestUIBlock(ScrolledPanel):
             border=DEFAULT_GAP
         )
 
+        button_font = wx.Font(wx.FontInfo(self.SEND_BUTTON_FONT_SIZE).Bold().AntiAliased())
         self.send_button = wx.Button(self, label="Send", style=wx.BORDER_NONE)
         self.send_button.SetBackgroundColour("#20A5FF")
         self.send_button.SetForegroundColour('#FFFFFF')
-        self.send_button.SetFont(wx.Font(wx.FontInfo(self.SEND_BUTTON_FONT_SIZE).Bold().AntiAliased()))
+        self.send_button.SetFont(button_font)
         self.grid.Add(self.send_button, pos=(0, 3), flag=wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
 
         self.request_exchange_name_input = wx.TextCtrl(self)
