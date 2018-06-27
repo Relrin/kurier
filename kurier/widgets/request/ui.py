@@ -5,8 +5,9 @@ from wx.lib.scrolledpanel import ScrolledPanel
 
 from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
     AMQP_RESPONSE_RECEIVED_TOPIC
-from kurier.amqp.events import EVT_AMQP_RESPONSE
+from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR
 from kurier.amqp.rpc import RpcAmqpClient
+from kurier.widgets.error_dlg import ErrorDialog
 from kurier.widgets.request.notebook import RequestNotebook
 
 
@@ -124,6 +125,7 @@ class RequestUIBlock(ScrolledPanel):
     def BindUI(self):
         self.Bind(wx.EVT_BUTTON, self.OnSendButtonClick)
         self.Bind(EVT_AMQP_RESPONSE, self.OnAmqpResponse)
+        self.Bind(EVT_AMQP_ERROR, self.OnAmqpError)
 
     def GetRequestParameters(self):
         return {
@@ -150,4 +152,10 @@ class RequestUIBlock(ScrolledPanel):
     def OnAmqpResponse(self, event):
         response = event.GetResponse()
         pub.sendMessage(AMQP_RESPONSE_RECEIVED_TOPIC, message=response)
+        self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
+
+    def OnAmqpError(self, event):
+        error = event.GetError()
+        error_dialog = ErrorDialog(self, error, "AMQP error")
+        error_dialog.ShowDialog()
         self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)

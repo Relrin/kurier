@@ -4,13 +4,13 @@ import wx
 
 from pika import BlockingConnection
 from pika.connection import URLParameters
-from pika.exceptions import IncompatibleProtocolError, ChannelClosed, UnroutableError, \
-    NackError
+from pika.exceptions import ProbableAuthenticationError, ProbableAccessDeniedError, \
+    IncompatibleProtocolError, ConnectionClosed, ChannelClosed, UnroutableError, NackError
 from pika.spec import BasicProperties
 
 from kurier.constants import DEFAULT_MESSAGE_PROPERTIES
-from kurier.amqp.events import CUSTOM_EVT_AMQP_RESPONSE, AmqpResponseEvent
-from kurier.amqp.exceptions import AmqpInvalidUrl, AmqpInvalidExchange, \
+from kurier.amqp.events import CUSTOM_EVT_AMQP_RESPONSE, CUSTOM_EVT_AMQP_ERROR, AmqpResponseEvent
+from kurier.amqp.exceptions import BaseAmqpException, AmqpInvalidUrl, AmqpInvalidExchange, \
     AmqpUnroutableError, AmqpRequestCancelled
 from kurier.amqp.response import Response
 from kurier.utils.multithreading import Thread
@@ -28,7 +28,6 @@ class RequestSendThread(Thread):
         self.request_routing_key = kwargs.pop('request_routing_key', None)
         assert self.request_routing_key is not None, "The request routing key must be specified."
 
-        self.connection_parameters = URLParameters(self.connection_url)
         self.response_queue = kwargs.pop("response_queue", "")
         self.response_exchange = kwargs.pop("response_exchange", "")
         self.response_routing_key = kwargs.pop("response_routing_key", "")
@@ -40,6 +39,7 @@ class RequestSendThread(Thread):
         self.parent = parent
 
         self._connection = None
+        self._connection_parameters = None
         self._channel = None
         self._response_queue_name = None
 
@@ -50,8 +50,11 @@ class RequestSendThread(Thread):
     def GetConnection(self):
         self.CancelOrContinueTask()
         try:
-            self._connection = BlockingConnection(self.connection_parameters)
-        except IncompatibleProtocolError:
+            self._connection_parameters = URLParameters(self.connection_url)
+            self._connection = BlockingConnection(self._connection_parameters)
+        except (ProbableAccessDeniedError, ProbableAuthenticationError):
+            raise AmqpInvalidUrl("Invalid credentials to the AMQP node and vhost.")
+        except (IncompatibleProtocolError, ConnectionClosed, IndexError):
             raise AmqpInvalidUrl("Invalid URL to the AMQP node.")
         return self._connection
 
@@ -81,8 +84,8 @@ class RequestSendThread(Thread):
                 routing_key=routing_key
             )
         except ChannelClosed:
-            message = "No exchange '{}' in vhost '{}'.".format(
-                exchange, self.connection_parameters.virtual_host
+            message = "No exchange \"{}\" in vhost \"{}\".".format(
+                exchange, self._connection_parameters.virtual_host
             )
             raise AmqpInvalidExchange(message)
 
@@ -116,21 +119,27 @@ class RequestSendThread(Thread):
     def ConsumeResponse(self, channel, queue_name):
         self.CancelOrContinueTask()
 
-        method_frame = None
-        response = Response()
-        while method_frame is None:
-            self.CancelOrContinueTask()
+        try:
+            method_frame = None
+            response = Response()
+            while method_frame is None:
+                self.CancelOrContinueTask()
 
-            method_frame, header_frame, body = channel.basic_get(queue_name)
-            if method_frame:
-                channel.basic_ack(method_frame.delivery_tag)
-                properties = {
-                    key: getattr(header_frame, key, None)
-                    for key in DEFAULT_MESSAGE_PROPERTIES
-                }
-                headers = header_frame.headers
-                response = Response(properties=properties, headers=headers, body=body)
-                break
+                method_frame, header_frame, body = channel.basic_get(queue_name)
+                if method_frame:
+                    channel.basic_ack(method_frame.delivery_tag)
+                    properties = {
+                        key: getattr(header_frame, key, None)
+                        for key in DEFAULT_MESSAGE_PROPERTIES
+                    }
+                    headers = header_frame.headers
+                    response = Response(properties=properties, headers=headers, body=body)
+                    break
+        except ChannelClosed:
+            message = "No exchange \"{}\" in vhost \"{}\".".format(
+                self.request_exchange, self._connection_parameters.virtual_host
+            )
+            raise AmqpInvalidExchange(message)
 
         return response
 
@@ -146,14 +155,18 @@ class RequestSendThread(Thread):
         )
         wx.PostEvent(self.parent, wx_event)
 
+    def ReturnError(self, error):
+        wx_event = AmqpResponseEvent(CUSTOM_EVT_AMQP_ERROR, wx.ID_ANY, error=error)
+        wx.PostEvent(self.parent, wx_event)
+
     def CleanResources(self):
         self._response_queue_name = None
 
-        if self._channel:
+        if self._channel and not (self._channel.is_closed or self._channel.is_closing):
             self._channel.close()
             self._channel = None
 
-        if self._connection:
+        if self._connection and not (self._connection.is_closed or self._connection.is_closing):
             self._connection.close()
             self._connection = None
 
@@ -169,6 +182,8 @@ class RequestSendThread(Thread):
             self.ReturnResponse(response)
         except AmqpRequestCancelled:
             pass
+        except BaseAmqpException as amqp_error:
+            self.ReturnError(amqp_error)
         finally:
             self.CleanResources()
 
