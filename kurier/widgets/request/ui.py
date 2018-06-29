@@ -3,9 +3,8 @@ import wx
 from wx.lib.pubsub import pub
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
-    AMQP_RESPONSE_RECEIVED_TOPIC
-from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR
+from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
+from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR, get_topic_name
 from kurier.amqp.rpc import RpcAmqpClient
 from kurier.widgets.error_dlg import ErrorDialog
 from kurier.widgets.request.notebook import RequestNotebook
@@ -18,7 +17,7 @@ class RequestUIBlock(ScrolledPanel):
     SEND_REQUEST_BUTTON_LABEL = "Send"
     CANCEL_REQUEST_BUTTON_LABEL = "Cancel"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, tab_id, *args, **kwargs):
         super(RequestUIBlock, self).__init__(*args, **kwargs)
         self.static_box_sizer = wx.StaticBoxSizer(parent=self, orient=wx.VERTICAL, label="Request")
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
@@ -30,6 +29,8 @@ class RequestUIBlock(ScrolledPanel):
         self.send_button = None
         self.request_data_notebook = None
 
+        self.tab_id = tab_id
+        self.topic_name = get_topic_name(self.tab_id)
         self.amqp_client = RpcAmqpClient(self)
 
         self.InitUI()
@@ -151,7 +152,7 @@ class RequestUIBlock(ScrolledPanel):
 
     def OnAmqpResponse(self, event):
         response = event.GetResponse()
-        pub.sendMessage(AMQP_RESPONSE_RECEIVED_TOPIC, message=response)
+        pub.sendMessage(self.topic_name, message=response)
         self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
 
     def OnAmqpError(self, event):
