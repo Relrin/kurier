@@ -111,7 +111,8 @@ class RequestSendThread(Thread):
                 exchange=self.request_exchange,
                 routing_key=self.request_routing_key,
                 body=self.body,
-                properties=BasicProperties(**properties)
+                properties=BasicProperties(**properties),
+                immediate=True
             )
         except (UnroutableError, NackError) as exc:
             raise AmqpUnroutableError(repr(exc))
@@ -140,6 +141,8 @@ class RequestSendThread(Thread):
                 self.request_exchange, self._connection_parameters.virtual_host
             )
             raise AmqpInvalidExchange(message)
+        except ConnectionClosed:
+            raise AmqpInvalidExchange("The queue with the \"{}\" routing key was not found.".format(self.request_routing_key))
 
         return response
 

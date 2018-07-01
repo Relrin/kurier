@@ -10,8 +10,9 @@ from kurier.widgets.response.notebook import ResponseNotebook
 class ResponseUIBlock(wx.Panel):
     SEND_BUTTON_FONT_SIZE = 10
 
-    def __init__(self, tab_id, *args, **kwargs):
-        super(ResponseUIBlock, self).__init__(*args, **kwargs)
+    def __init__(self, tab_id, parent, *args, **kwargs):
+        super(ResponseUIBlock, self).__init__(parent, *args, **kwargs)
+        self.parent = parent
         self.static_box_sizer = wx.StaticBoxSizer(parent=self, orient=wx.VERTICAL, label="Response")
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
         self.queue_name_input = None

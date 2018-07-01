@@ -5,11 +5,12 @@ from wx.lib.agw.aui import AUI_NB_CLOSE_ON_ACTIVE_TAB, AUI_NB_MIDDLE_CLICK_CLOSE
     AUI_NB_TAB_MOVE, EVT_AUINOTEBOOK_PAGE_CLOSED, AUI_NB_TAB_EXTERNAL_MOVE, \
     AUI_NB_TAB_SPLIT
 
-
+from kurier.amqp.events import EVT_UPDATE_AMQP_TAB_NAME
 from kurier.widgets.amqp_tab import AmqpTab
 
 
 class CustomAuiNotebook(AuiNotebook):
+    MAX_TAB_LABEL_LENGTH = 25
 
     def __init__(self, parent, *args, **kwargs):
         super(CustomAuiNotebook, self).__init__(parent, *args, **kwargs)
@@ -31,6 +32,7 @@ class CustomAuiNotebook(AuiNotebook):
 
     def BindEvents(self):
         self.Bind(EVT_AUINOTEBOOK_PAGE_CLOSED, self.OnTabClose)
+        self.Bind(EVT_UPDATE_AMQP_TAB_NAME, self.OnUpdateAmqpTabName)
 
     def AddNewTab(self, tab_name="New tab"):
         new_tab = AmqpTab(self)
@@ -62,3 +64,11 @@ class CustomAuiNotebook(AuiNotebook):
             control = event.GetEventObject()
             window = control.GetWindowFromIdx(self.GetPageCount() - 1)
             self.SetSelectionToWindow(window)
+
+    def OnUpdateAmqpTabName(self, event):
+        index = self.GetSelection()
+        new_page_label = "exchange:{}; routing key:{}".format(
+            event.GetExchangeName(),
+            event.GetRoutingKey()
+        )[:self.MAX_TAB_LABEL_LENGTH]
+        self.SetPageText(index, new_page_label)

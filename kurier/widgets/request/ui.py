@@ -4,7 +4,8 @@ from wx.lib.pubsub import pub
 from wx.lib.scrolledpanel import ScrolledPanel
 
 from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
-from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR, get_topic_name
+from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR, get_topic_name, \
+    UpdateAmqpTabNameEvent, CUSTOM_EVT_UPDATE_AMQP_TAB_NAME
 from kurier.amqp.rpc import RpcAmqpClient
 from kurier.widgets.error_dlg import ErrorDialog
 from kurier.widgets.request.notebook import RequestNotebook
@@ -17,8 +18,9 @@ class RequestUIBlock(ScrolledPanel):
     SEND_REQUEST_BUTTON_LABEL = "Send"
     CANCEL_REQUEST_BUTTON_LABEL = "Cancel"
 
-    def __init__(self, tab_id, *args, **kwargs):
-        super(RequestUIBlock, self).__init__(*args, **kwargs)
+    def __init__(self, tab_id, parent, *args, **kwargs):
+        super(RequestUIBlock, self).__init__(parent, *args, **kwargs)
+        self.parent = parent
         self.static_box_sizer = wx.StaticBoxSizer(parent=self, orient=wx.VERTICAL, label="Request")
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
         self.connection_string = None
@@ -145,6 +147,15 @@ class RequestUIBlock(ScrolledPanel):
         if self.send_button.GetLabel() == self.SEND_REQUEST_BUTTON_LABEL:
             self.send_button.SetLabel(self.CANCEL_REQUEST_BUTTON_LABEL)
             request_parameters = self.GetRequestParameters()
+
+            wx_event = UpdateAmqpTabNameEvent(
+                CUSTOM_EVT_UPDATE_AMQP_TAB_NAME,
+                wx.ID_ANY,
+                exchange=request_parameters["request_exchange"],
+                routing_key=request_parameters["request_routing_key"],
+            )
+            wx.PostEvent(self.parent, wx_event)
+
             self.amqp_client.SendRequest(**request_parameters)
         else:
             self.amqp_client.CancelRequest()
