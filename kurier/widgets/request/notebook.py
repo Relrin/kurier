@@ -35,3 +35,12 @@ class RequestNotebook(AuiNotebook):
 
         self.data_tab = RequestDataTab(self)
         self.AddPage(self.data_tab, "Message body", select=False)
+
+    def GetRequestProperties(self):
+        return self.properties_tab.GetProperties()
+
+    def GetRequestHeaders(self):
+        return self.headers_tab.GetHeaders()
+
+    def GetRequestData(self):
+        return self.data_tab.GetData()

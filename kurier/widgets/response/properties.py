@@ -23,3 +23,7 @@ class ResponsePropertiesTab(wx.Panel):
 
     def DeleteAllRows(self):
         self.properties_ctrl.DeleteAllItems()
+
+    def RenderProperties(self, properties):
+        self.DeleteAllRows()
+        self.AddRows(list(properties.items()))

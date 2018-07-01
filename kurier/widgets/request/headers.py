@@ -39,3 +39,14 @@ class RequestHeadersTab(wx.Panel):
         # TODO: Add new row and focus on the first column (header name)
         if row_info.GetId() == self.headers_ctrl.GetItemCount() - 1:
             self.AddNewHeader('Key')
+
+    def GetHeaders(self):
+        properties = {}
+
+        rows = self.headers_ctrl.GetItemCount() - 1
+        for row in range(rows):
+            key = self.headers_ctrl.GetItem(itemIdx=row, col=0).GetText().strip()
+            value = self.headers_ctrl.GetItem(itemIdx=row, col=1).GetText()
+            properties[key] = value
+
+        return properties
