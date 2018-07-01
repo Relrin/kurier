@@ -54,8 +54,8 @@ class RequestSendThread(Thread):
             self._connection = BlockingConnection(self._connection_parameters)
         except (ProbableAccessDeniedError, ProbableAuthenticationError):
             raise AmqpInvalidUrl("Invalid credentials to the AMQP node and vhost.")
-        except (IncompatibleProtocolError, ConnectionClosed, IndexError):
-            raise AmqpInvalidUrl("Invalid URL to the AMQP node.")
+        except (IncompatibleProtocolError, ConnectionClosed, ValueError, IndexError):
+            raise AmqpInvalidUrl("The connection URL to the AMQP node is invalid.")
         return self._connection
 
     def CreateChannel(self, connection):
@@ -111,8 +111,7 @@ class RequestSendThread(Thread):
                 exchange=self.request_exchange,
                 routing_key=self.request_routing_key,
                 body=self.body,
-                properties=BasicProperties(**properties),
-                immediate=True
+                properties=BasicProperties(**properties)
             )
         except (UnroutableError, NackError) as exc:
             raise AmqpUnroutableError(repr(exc))
@@ -141,8 +140,6 @@ class RequestSendThread(Thread):
                 self.request_exchange, self._connection_parameters.virtual_host
             )
             raise AmqpInvalidExchange(message)
-        except ConnectionClosed:
-            raise AmqpInvalidExchange("The queue with the \"{}\" routing key was not found.".format(self.request_routing_key))
 
         return response
 
