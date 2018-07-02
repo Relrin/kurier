@@ -3,7 +3,8 @@ import wx
 from wx.lib.pubsub import pub
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
+from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
+    SAVE_STATE_TOPIC
 from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR, get_topic_name, \
     UpdateAmqpTabNameEvent, CUSTOM_EVT_UPDATE_AMQP_TAB_NAME
 from kurier.amqp.rpc import RpcAmqpClient
@@ -164,6 +165,7 @@ class RequestUIBlock(ScrolledPanel):
     def OnAmqpResponse(self, event):
         response = event.GetResponse()
         pub.sendMessage(self.topic_name, message=response)
+        pub.sendMessage(SAVE_STATE_TOPIC, message=self.GetRequestParameters())
         self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
 
     def OnAmqpError(self, event):
