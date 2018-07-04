@@ -53,10 +53,11 @@ class HistoryPanel(wx.Panel):
     def RefreshListCtrl(self):
         self.history_entries.DeleteAllItems()
 
-        for index in range(self.history_manager.SavedStates):
+        saved_states_count = self.history_manager.SavedStates
+        for index in range(saved_states_count):
             state = self.history_manager.GetState(index)
             formatted_state = self.STATE_STRING_REPR.format(
-                index=index + 1,
+                index=saved_states_count - index,
                 exchange=state["request_exchange"],
                 routing_key=state["request_routing_key"]
             )
