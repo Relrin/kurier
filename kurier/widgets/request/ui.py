@@ -5,6 +5,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 
 from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
     SAVE_STATE_TOPIC
+from kurier.interfaces import IStateRestorable
 from kurier.amqp.events import EVT_AMQP_RESPONSE, EVT_AMQP_ERROR, get_topic_name, \
     UpdateAmqpTabNameEvent, CUSTOM_EVT_UPDATE_AMQP_TAB_NAME
 from kurier.amqp.rpc import RpcAmqpClient
@@ -12,7 +13,7 @@ from kurier.widgets.error_dlg import ErrorDialog
 from kurier.widgets.request.notebook import RequestNotebook
 
 
-class RequestUIBlock(ScrolledPanel):
+class RequestUIBlock(IStateRestorable, ScrolledPanel):
     SEND_BUTTON_FONT_SIZE = 10
     HORIZONTAL_SCROLL_INC = DEFAULT_GAP // 2 - 1
 
@@ -126,6 +127,15 @@ class RequestUIBlock(ScrolledPanel):
         self.SetSizer(self.static_box_sizer)
         self.SetupScrolling(scroll_y=False, rate_x=self.HORIZONTAL_SCROLL_INC)
 
+    def InitFromState(self, **state):
+        self.connection_string.SetValue(state.get("connection_url", ""))
+        self.request_exchange_name_input.SetValue(state.get("request_exchange", ""))
+        self.request_routing_key_input.SetValue(state.get("request_routing_key", ""))
+        self.response_queue_name_input.SetValue(state.get("response_queue", ""))
+        self.response_exchange_name_input.SetValue(state.get("response_exchange", ""))
+        self.response_routing_key_input.SetValue(state.get("response_routing_key", ""))
+        self.request_data_notebook.InitFromState(**state)
+
     def BindUI(self):
         self.Bind(wx.EVT_BUTTON, self.OnSendButtonClick)
         self.Bind(EVT_AMQP_RESPONSE, self.OnAmqpResponse)
@@ -139,9 +149,9 @@ class RequestUIBlock(ScrolledPanel):
             "response_queue": self.response_queue_name_input.GetValue(),
             "response_exchange": self.response_exchange_name_input.GetValue(),
             "response_routing_key": self.response_routing_key_input.GetValue(),
-            "body": self.request_data_notebook.GetRequestData(),
             "properties": self.request_data_notebook.GetRequestProperties(),
-            "headers": self.request_data_notebook.GetRequestHeaders()
+            "headers": self.request_data_notebook.GetRequestHeaders(),
+            "body": self.request_data_notebook.GetRequestData(),
         }
 
     def OnSendButtonClick(self, _event):

@@ -1,10 +1,11 @@
 import wx
 
 from kurier.constants import DEFAULT_MESSAGE_PROPERTIES
+from kurier.interfaces import IStateRestorable
 from kurier.widgets.list_ctrl import EditableListCtrl
 
 
-class RequestPropertiesTab(wx.Panel):
+class RequestPropertiesTab(IStateRestorable, wx.Panel):
     AVAILABLE_PROPERTIES = DEFAULT_MESSAGE_PROPERTIES
     USED_COLUMNS = ["Property name", "Value"]
     UTILITY_ROW_TEXT = "Click here for adding a new property..."
@@ -26,6 +27,18 @@ class RequestPropertiesTab(wx.Panel):
         self.sizer.Add(self.properties_ctrl, proportion=1, flag=wx.EXPAND)
         self.SetSizer(self.sizer)
 
+    def InitFromState(self, **state):
+        self.ClearPropertiesTab()
+
+        properties = state.get("properties", {})
+        for key, value in properties.items():
+            self.AddNewProperty(key, value)
+
+    def ClearPropertiesTab(self):
+        self.DeleteUtilityRow()
+        self.properties_ctrl.DeleteAllItems()
+        self.AddUtilityRow()
+
     def AddUtilityRow(self):
         self.properties_ctrl.AddUtilityRow()
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnListItemSelected)
@@ -34,7 +47,7 @@ class RequestPropertiesTab(wx.Panel):
         self.properties_ctrl.DeleteUtilityRow()
         self.Unbind(wx.EVT_LIST_ITEM_SELECTED, handler=self.OnListItemSelected)
 
-    def AddNewHeader(self, header_name, value=wx.EmptyString):
+    def AddNewProperty(self, header_name, value=wx.EmptyString):
         insert_index = self.properties_ctrl.GetItemCount() - 1
         self.properties_ctrl.AddNewRow(header_name, value, insert_index)
 
@@ -48,7 +61,7 @@ class RequestPropertiesTab(wx.Panel):
 
         # TODO: Add new row and focus on selection a property from ComboBox (dynamic)
         if row_info.GetId() == self.properties_ctrl.GetItemCount() - 1:
-            self.AddNewHeader('Key')
+            self.AddNewProperty('Key')
 
     def GetProperties(self):
         properties = {}

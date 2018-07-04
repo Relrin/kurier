@@ -3,7 +3,7 @@ import wx
 from wx.lib.pubsub import pub
 
 from kurier.constants import DEFAULT_GAP, DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
-    SAVE_STATE_TOPIC
+    SAVE_STATE_TOPIC, LOAD_STATE_TOPIC
 from kurier.utils.history_manager import HistoryManager
 from kurier.widgets.list_ctrl import ResizableListCtrl
 
@@ -22,9 +22,9 @@ class HistoryPanel(wx.Panel):
         self.BindUI()
 
     def InitUI(self):
-        search_input = wx.SearchCtrl(self)
+        self.search_input = wx.SearchCtrl(self)
         self.grid.Add(
-            search_input,
+            self.search_input,
             pos=(0, 0),
             flag=wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT,
             border=DEFAULT_GAP
@@ -47,6 +47,7 @@ class HistoryPanel(wx.Panel):
         self.SetSizer(self.grid)
 
     def BindUI(self):
+        self.history_entries.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnLoadState)
         pub.subscribe(self.OnSaveState, SAVE_STATE_TOPIC)
 
     def RefreshListCtrl(self):
@@ -64,3 +65,8 @@ class HistoryPanel(wx.Panel):
     def OnSaveState(self, message):
         self.history_manager.AddState(message)
         self.RefreshListCtrl()
+
+    def OnLoadState(self, _event):
+        index = self.history_entries.GetFirstSelected()
+        state = self.history_manager.GetState(index)
+        pub.sendMessage(LOAD_STATE_TOPIC, message=state)
