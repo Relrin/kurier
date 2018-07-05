@@ -47,14 +47,16 @@ class HistoryPanel(wx.Panel):
         self.SetSizer(self.grid)
 
     def BindUI(self):
+        self.search_input.Bind(wx.EVT_SEARCHCTRL_SEARCH_BTN, self.OnSearchByKeyword)
+        self.search_input.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.OnCancelSearchByKeyword)
         self.history_entries.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnLoadState)
         pub.subscribe(self.OnSaveState, SAVE_STATE_TOPIC)
 
-    def RefreshListCtrl(self):
+    def RefreshListCtrl(self, indices):
         self.history_entries.DeleteAllItems()
 
         saved_states_count = self.history_manager.SavedStates
-        for index in range(saved_states_count):
+        for index in indices:
             state = self.history_manager.GetState(index)
             formatted_state = self.STATE_STRING_REPR.format(
                 index=saved_states_count - index,
@@ -63,11 +65,44 @@ class HistoryPanel(wx.Panel):
             )
             self.history_entries.InsertItem(index, formatted_state)
 
+    def ShowFullHistory(self):
+        matched_indices = range(self.history_manager.SavedStates)
+        self.RefreshListCtrl(matched_indices)
+
+    def GetStateIndicesByKeyword(self, keyword):
+        matched_state_indices = []
+
+        for index in range(self.history_manager.SavedStates):
+            state = self.history_manager.GetState(index)
+            match_in_exchange = keyword in state["request_exchange"]
+            match_in_routing_key = keyword in state["request_routing_key"]
+            if match_in_exchange or match_in_routing_key:
+                matched_state_indices.append(index)
+
+        return matched_state_indices
+
     def OnSaveState(self, message):
         self.history_manager.AddState(message)
-        self.RefreshListCtrl()
+        self.ShowFullHistory()
 
     def OnLoadState(self, _event):
         index = self.history_entries.GetFirstSelected()
         state = self.history_manager.GetState(index)
         pub.sendMessage(LOAD_STATE_TOPIC, message=state)
+
+    def OnSearchByKeyword(self, event):
+        keyword = event.GetString().strip()
+
+        if keyword in [wx.EmptyString, ""]:
+            self.ShowFullHistory()
+            event.Skip()
+            return
+
+        matched_state_indices = self.GetStateIndicesByKeyword(keyword)
+        self.RefreshListCtrl(matched_state_indices)
+        event.Skip()
+
+    def OnCancelSearchByKeyword(self, event):
+        self.search_input.Clear()
+        self.ShowFullHistory()
+        event.Skip()
