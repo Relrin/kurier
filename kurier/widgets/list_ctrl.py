@@ -62,15 +62,9 @@ class EditableListCtrl(TextEditMixin, ResizableListCtrl):
 
     def OnLeftDown(self, event=None):
         x, y = event.GetPosition()
+        row, _flags = self.HitTest((x, y))
 
-        loc = 0
-        self.col_locs = [0]
-        for n in range(self.GetColumnCount()):
-            loc = loc + self.GetColumnWidth(n)
-            self.col_locs.append(loc)
-
-        col = bisect(self.col_locs, x + self.GetScrollPos(wx.HORIZONTAL)) - 1
-        if self.has_utility_row and col == self.GetItemCount() - 1:
+        if self.has_utility_row and row == self.GetItemCount() - 1:
             event.Skip()
             return
 
