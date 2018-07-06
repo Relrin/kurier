@@ -23,10 +23,14 @@ class ResizableListCtrl(ListCtrlAutoWidthMixin, wx.ListCtrl):
         ListCtrlAutoWidthMixin.__init__(self)
 
         self.InitUI()
+        self.BindUI()
 
     def InitUI(self):
         for index, column_name in enumerate(self.columns):
             self.InsertColumn(index, column_name, width=wx.LIST_AUTOSIZE_USEHEADER)
+
+    def BindUI(self):
+        pass
 
     def AddUtilityRow(self):
         total_rows = self.GetItemCount()
@@ -59,6 +63,30 @@ class EditableListCtrl(TextEditMixin, ResizableListCtrl):
     def __init__(self, *args, **kwargs):
         ResizableListCtrl.__init__(self, *args, **kwargs)
         TextEditMixin.__init__(self)
+
+        self.BindUI()
+
+    def BindUI(self):
+        super(EditableListCtrl, self).BindUI()
+
+        deleteRowId = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.OnDeleteRow, id=deleteRowId)
+
+        accelerator_table = wx.AcceleratorTable([
+            (wx.ACCEL_NORMAL, wx.WXK_BACK, deleteRowId),
+            (wx.ACCEL_NORMAL, wx.WXK_DELETE, deleteRowId),
+            (wx.ACCEL_NORMAL, wx.WXK_NUMPAD_DELETE, deleteRowId)
+        ])
+        self.SetAcceleratorTable(accelerator_table)
+
+    def OnDeleteRow(self, event):
+        is_editor_mode = self.editor and self.editor.IsShown()
+        is_utility_row = self.curRow == self.GetItemCount() - 1 if self.has_utility_row else False
+        if not is_editor_mode and not is_utility_row:
+            self.DeleteItem(self.curRow)
+            return
+
+        event.Skip()
 
     def OnLeftDown(self, event=None):
         x, y = event.GetPosition()
