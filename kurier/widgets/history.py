@@ -23,6 +23,7 @@ class HistoryPanel(wx.Panel):
 
     def InitUI(self):
         self.search_input = wx.SearchCtrl(self)
+        self.search_input.ShowCancelButton(True)
         self.grid.Add(
             self.search_input,
             pos=(0, 0),
