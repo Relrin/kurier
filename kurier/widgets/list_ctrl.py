@@ -63,6 +63,7 @@ class EditableListCtrl(TextEditMixin, ResizableListCtrl):
     def __init__(self, *args, **kwargs):
         ResizableListCtrl.__init__(self, *args, **kwargs)
         TextEditMixin.__init__(self)
+        self.old_value = None
 
         self.BindUI()
 
@@ -70,14 +71,26 @@ class EditableListCtrl(TextEditMixin, ResizableListCtrl):
         super(EditableListCtrl, self).BindUI()
 
         deleteRowId = wx.NewId()
+        cancelEditId = wx.NewId()
         self.Bind(wx.EVT_MENU, self.OnDeleteRow, id=deleteRowId)
+        self.Bind(wx.EVT_MENU, self.OnCancelEdit, id=cancelEditId)
 
         accelerator_table = wx.AcceleratorTable([
             (wx.ACCEL_NORMAL, wx.WXK_BACK, deleteRowId),
             (wx.ACCEL_NORMAL, wx.WXK_DELETE, deleteRowId),
-            (wx.ACCEL_NORMAL, wx.WXK_NUMPAD_DELETE, deleteRowId)
+            (wx.ACCEL_NORMAL, wx.WXK_NUMPAD_DELETE, deleteRowId),
+            (wx.ACCEL_NORMAL, wx.WXK_ESCAPE, cancelEditId),
         ])
         self.SetAcceleratorTable(accelerator_table)
+
+    def OpenEditor(self, col, row):
+        item = self.GetItem(row, col)
+        self.old_value = item.GetText()
+        super(EditableListCtrl, self).OpenEditor(col, row)
+
+    def CloseEditor(self, event=None):
+        super(EditableListCtrl, self).CloseEditor(event)
+        self.old_value = None
 
     def OnDeleteRow(self, event):
         is_editor_mode = self.editor and self.editor.IsShown()
@@ -86,6 +99,13 @@ class EditableListCtrl(TextEditMixin, ResizableListCtrl):
             self.DeleteItem(self.curRow)
             return
 
+        event.Skip()
+
+    def OnCancelEdit(self, event):
+        if self.editor:
+            self.editor.SetValue(self.old_value)
+
+        self.CloseEditor()
         event.Skip()
 
     def OnLeftDown(self, event=None):
