@@ -137,7 +137,7 @@ class RequestUIBlock(IStateRestorable, ScrolledPanel):
         self.request_data_notebook.InitFromState(**state)
 
     def BindUI(self):
-        self.Bind(wx.EVT_BUTTON, self.OnSendButtonClick)
+        self.send_button.Bind(wx.EVT_BUTTON, self.OnSendButtonClick)
         self.Bind(EVT_AMQP_RESPONSE, self.OnAmqpResponse)
         self.Bind(EVT_AMQP_ERROR, self.OnAmqpError)
 
