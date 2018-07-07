@@ -1,9 +1,10 @@
 import wx
 
+from kurier.interfaces import IStateRestorable
 from kurier.widgets.list_ctrl import EditableListCtrl
 
 
-class RequestHeadersTab(wx.Panel):
+class RequestHeadersTab(IStateRestorable, wx.Panel):
     USED_COLUMNS = ["Header name", "Value"]
     UTILITY_ROW_TEXT = "Click here for adding a new user header..."
 
@@ -17,6 +18,7 @@ class RequestHeadersTab(wx.Panel):
         )
 
         self.InitUI()
+        self.BindUI()
 
     def InitUI(self):
         self.AddUtilityRow()
@@ -24,9 +26,26 @@ class RequestHeadersTab(wx.Panel):
         self.sizer.Add(self.headers_ctrl, proportion=1, flag=wx.EXPAND)
         self.SetSizer(self.sizer)
 
+    def InitFromState(self, **state):
+        self.ClearHeadersTab()
+        headers = state.get("headers", {})
+
+        for key, value in headers.items():
+            self.AddNewHeader(key, value)
+
+    def BindUI(self):
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnListItemSelected)
+
+    def ClearHeadersTab(self):
+        self.DeleteUtilityRow()
+        self.headers_ctrl.DeleteAllItems()
+        self.AddUtilityRow()
+
     def AddUtilityRow(self):
         self.headers_ctrl.AddUtilityRow()
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnListItemSelected)
+
+    def DeleteUtilityRow(self):
+        self.headers_ctrl.DeleteUtilityRow()
 
     def AddNewHeader(self, header_name, value=wx.EmptyString):
         insert_index = self.headers_ctrl.GetItemCount() - 1

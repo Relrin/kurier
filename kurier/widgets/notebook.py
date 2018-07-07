@@ -4,7 +4,9 @@ from wx.lib.agw.aui import AuiNotebook
 from wx.lib.agw.aui import AUI_NB_CLOSE_ON_ACTIVE_TAB, AUI_NB_MIDDLE_CLICK_CLOSE, \
     AUI_NB_TAB_MOVE, EVT_AUINOTEBOOK_PAGE_CLOSED, AUI_NB_TAB_EXTERNAL_MOVE, \
     AUI_NB_TAB_SPLIT
+from wx.lib.pubsub import pub
 
+from kurier.constants import LOAD_STATE_TOPIC
 from kurier.amqp.events import EVT_UPDATE_AMQP_TAB_NAME
 from kurier.widgets.amqp_tab import AmqpTab
 
@@ -24,19 +26,22 @@ class CustomAuiNotebook(AuiNotebook):
         )
 
         self.InitUI()
-        self.BindEvents()
+        self.BindUI()
 
     def InitUI(self):
         self.AddNewTabAsButton()
         self.AddNewTab()
 
-    def BindEvents(self):
+    def BindUI(self):
         self.Bind(EVT_AUINOTEBOOK_PAGE_CLOSED, self.OnTabClose)
         self.Bind(EVT_UPDATE_AMQP_TAB_NAME, self.OnUpdateAmqpTabName)
+        pub.subscribe(self.OnLoadState, LOAD_STATE_TOPIC)
 
     def AddNewTab(self, tab_name="New tab"):
         new_tab = AmqpTab(self)
-        self.InsertPage(self.GetPageCount(), new_tab, tab_name, select=True)
+        page_index = self.GetPageCount()
+        self.InsertPage(page_index, new_tab, tab_name, select=True)
+        return page_index
 
     def AddNewTabAsButton(self):
         new_tab_button = wx.Control(self)
@@ -72,3 +77,8 @@ class CustomAuiNotebook(AuiNotebook):
             event.GetRoutingKey()
         )[:self.MAX_TAB_LABEL_LENGTH]
         self.SetPageText(index, new_page_label)
+
+    def OnLoadState(self, message):
+        page_index = self.AddNewTab()
+        page_info = self.GetPageInfo(page_index)
+        page_info.window.InitFromState(**message)

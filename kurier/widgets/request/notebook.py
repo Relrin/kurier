@@ -2,12 +2,13 @@ from wx.lib.agw.aui import AuiNotebook
 from wx.lib.agw.aui import AUI_NB_CLOSE_ON_ACTIVE_TAB, AUI_NB_MIDDLE_CLICK_CLOSE, \
     AUI_NB_TAB_MOVE, AUI_NB_TAB_EXTERNAL_MOVE, AUI_NB_TAB_SPLIT, AUI_NB_CLOSE_BUTTON
 
+from kurier.interfaces import IStateRestorable
 from kurier.widgets.request.headers import RequestHeadersTab
 from kurier.widgets.request.properties import RequestPropertiesTab
 from kurier.widgets.request.data import RequestDataTab
 
 
-class RequestNotebook(AuiNotebook):
+class RequestNotebook(IStateRestorable, AuiNotebook):
 
     def __init__(self, *args, **kwargs):
         super(RequestNotebook, self).__init__(*args, **kwargs)
@@ -35,6 +36,11 @@ class RequestNotebook(AuiNotebook):
 
         self.data_tab = RequestDataTab(self)
         self.AddPage(self.data_tab, "Message body", select=False)
+
+    def InitFromState(self, **state):
+        self.properties_tab.InitFromState(**state)
+        self.headers_tab.InitFromState(**state)
+        self.data_tab.InitFromState(**state)
 
     def GetRequestProperties(self):
         return self.properties_tab.GetProperties()

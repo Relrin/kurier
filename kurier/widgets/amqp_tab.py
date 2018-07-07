@@ -3,12 +3,13 @@ from uuid import uuid4
 import wx
 
 from kurier.constants import DEFAULT_GAP
+from kurier.interfaces import IStateRestorable
 from kurier.amqp.events import EVT_UPDATE_AMQP_TAB_NAME
 from kurier.widgets.request.ui import RequestUIBlock
 from kurier.widgets.response.ui import ResponseUIBlock
 
 
-class AmqpTab(wx.Panel):
+class AmqpTab(IStateRestorable, wx.Panel):
     MINIMUM_PANE_SIZE = 0.45
     MINIMAL_PANEL_HEIGHT = 600
 
@@ -34,6 +35,9 @@ class AmqpTab(wx.Panel):
 
         self.sizer.Add(self.window_splitter, 1, wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
         self.SetSizer(self.sizer)
+
+    def InitFromState(self, **state):
+        self.request_ui_block.InitFromState(**state)
 
     def BindUI(self):
         self.Bind(EVT_UPDATE_AMQP_TAB_NAME, self.OnUpdateAmqpTabName)

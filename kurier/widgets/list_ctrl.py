@@ -23,10 +23,14 @@ class ResizableListCtrl(ListCtrlAutoWidthMixin, wx.ListCtrl):
         ListCtrlAutoWidthMixin.__init__(self)
 
         self.InitUI()
+        self.BindUI()
 
     def InitUI(self):
         for index, column_name in enumerate(self.columns):
             self.InsertColumn(index, column_name, width=wx.LIST_AUTOSIZE_USEHEADER)
+
+    def BindUI(self):
+        pass
 
     def AddUtilityRow(self):
         total_rows = self.GetItemCount()
@@ -59,18 +63,56 @@ class EditableListCtrl(TextEditMixin, ResizableListCtrl):
     def __init__(self, *args, **kwargs):
         ResizableListCtrl.__init__(self, *args, **kwargs)
         TextEditMixin.__init__(self)
+        self.old_value = None
+
+        self.BindUI()
+
+    def BindUI(self):
+        super(EditableListCtrl, self).BindUI()
+
+        deleteRowId = wx.NewId()
+        cancelEditId = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.OnDeleteRow, id=deleteRowId)
+        self.Bind(wx.EVT_MENU, self.OnCancelEdit, id=cancelEditId)
+
+        accelerator_table = wx.AcceleratorTable([
+            (wx.ACCEL_NORMAL, wx.WXK_BACK, deleteRowId),
+            (wx.ACCEL_NORMAL, wx.WXK_DELETE, deleteRowId),
+            (wx.ACCEL_NORMAL, wx.WXK_NUMPAD_DELETE, deleteRowId),
+            (wx.ACCEL_NORMAL, wx.WXK_ESCAPE, cancelEditId),
+        ])
+        self.SetAcceleratorTable(accelerator_table)
+
+    def OpenEditor(self, col, row):
+        item = self.GetItem(row, col)
+        self.old_value = item.GetText()
+        super(EditableListCtrl, self).OpenEditor(col, row)
+
+    def CloseEditor(self, event=None):
+        super(EditableListCtrl, self).CloseEditor(event)
+        self.old_value = None
+
+    def OnDeleteRow(self, event):
+        is_editor_mode = self.editor and self.editor.IsShown()
+        is_utility_row = self.curRow == self.GetItemCount() - 1 if self.has_utility_row else False
+        if not is_editor_mode and not is_utility_row:
+            self.DeleteItem(self.curRow)
+            return
+
+        event.Skip()
+
+    def OnCancelEdit(self, event):
+        if self.editor:
+            self.editor.SetValue(self.old_value)
+
+        self.CloseEditor()
+        event.Skip()
 
     def OnLeftDown(self, event=None):
         x, y = event.GetPosition()
+        row, _flags = self.HitTest((x, y))
 
-        loc = 0
-        self.col_locs = [0]
-        for n in range(self.GetColumnCount()):
-            loc = loc + self.GetColumnWidth(n)
-            self.col_locs.append(loc)
-
-        col = bisect(self.col_locs, x + self.GetScrollPos(wx.HORIZONTAL)) - 1
-        if self.has_utility_row and col == self.GetItemCount() - 1:
+        if self.has_utility_row and row == self.GetItemCount() - 1:
             event.Skip()
             return
 
