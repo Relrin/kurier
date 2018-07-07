@@ -11,15 +11,18 @@ from kurier.widgets.list_ctrl import ResizableListCtrl
 class HistoryPanel(wx.Panel):
     STATE_STRING_REPR = "{index} Exchange={exchange}; routing_key={routing_key}"
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, app_directory=None, *args, **kwargs):
         super(HistoryPanel, self).__init__(parent, *args, **kwargs)
+        self.app_directory = app_directory
+
         self.grid = wx.GridBagSizer(DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP)
         self.search_input = None
         self.history_entries = None
-        self.history_manager = HistoryManager()
+        self.history_manager = HistoryManager(self.app_directory)
 
         self.InitUI()
         self.BindUI()
+        self.ShowFullHistory()
 
     def InitUI(self):
         self.search_input = wx.SearchCtrl(self)
