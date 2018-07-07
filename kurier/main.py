@@ -4,9 +4,11 @@ import sys
 from pathlib import Path
 
 import wx
+from wx.lib.pubsub import pub
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))  # NOQA
 
+from kurier.constants import CLOSE_APPLICATION_TOPIC
 from kurier.widgets.history import HistoryPanel
 from kurier.widgets.work_area import WorkAreaPanel
 
@@ -28,6 +30,7 @@ class Application(wx.Frame):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         self.InitUI()
+        self.BindUI()
         self.Centre()
         self.Show()
 
@@ -42,6 +45,13 @@ class Application(wx.Frame):
 
         self.sizer.Add(self.window_splitter, 1, wx.EXPAND | wx.ALL)
         self.SetSizer(self.sizer)
+
+    def BindUI(self):
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+    def OnClose(self, event):
+        pub.sendMessage(CLOSE_APPLICATION_TOPIC, message=None)
+        event.Skip()
 
 
 if __name__ == '__main__':

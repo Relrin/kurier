@@ -3,7 +3,7 @@ import wx
 from wx.lib.pubsub import pub
 
 from kurier.constants import DEFAULT_GAP, DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP, \
-    SAVE_STATE_TOPIC, LOAD_STATE_TOPIC
+    SAVE_STATE_TOPIC, LOAD_STATE_TOPIC, CLOSE_APPLICATION_TOPIC
 from kurier.utils.history_manager import HistoryManager
 from kurier.widgets.list_ctrl import ResizableListCtrl
 
@@ -55,6 +55,7 @@ class HistoryPanel(wx.Panel):
         self.search_input.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.OnCancelSearchByKeyword)
         self.history_entries.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnLoadState)
         pub.subscribe(self.OnSaveState, SAVE_STATE_TOPIC)
+        pub.subscribe(self.OnCloseApplication, CLOSE_APPLICATION_TOPIC)
 
     def RefreshListCtrl(self, indices):
         self.history_entries.DeleteAllItems()
@@ -110,3 +111,6 @@ class HistoryPanel(wx.Panel):
         self.search_input.Clear()
         self.ShowFullHistory()
         event.Skip()
+
+    def OnCloseApplication(self, message):
+        self.history_manager.ExportHistoryToDefaultFile()

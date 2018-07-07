@@ -73,14 +73,28 @@ class HistoryManager(object):
                 except (TypeError, ValueError, json.JSONDecodeError):
                     pass
 
+    def ExportHistoryToFile(self, history_file):
+        with history_file:
+            history_file.seek(0)
+            history_file.truncate()
+
+            newline = self.HISTORY_FILE_OPTIONS.get("newline", "\n")
+            for index in range(self.SavedStates - 1, -1, -1):
+                state = self.GetState(index)
+                state_dump = json.dumps(state) + newline
+                history_file.write(state_dump)
+
+    def ExportHistoryToDefaultFile(self):
+        if self._history_filepath:
+            history_file = self._history_filepath.open(mode="wt+", **self.HISTORY_FILE_OPTIONS)
+            self.ExportHistoryToFile(history_file)
+
     def AddState(self, state_data: Dict):
         if self.SavedStates >= self.MAX_STATES:
             self.RemoveOldState()
 
         state = State(**state_data)
         self._data.insert(0, state)
-
-        if self._history_filepath
 
     def GetState(self, index):
         if index > self.SavedStates:
