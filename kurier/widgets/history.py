@@ -10,6 +10,7 @@ from kurier.widgets.list_ctrl import ResizableListCtrl
 
 class HistoryPanel(wx.Panel):
     STATE_STRING_REPR = "{index} Exchange={exchange}; routing_key={routing_key}"
+    MINIMAL_COLUMN_WIDTH = 50
 
     def __init__(self, parent, app_directory=None, *args, **kwargs):
         super(HistoryPanel, self).__init__(parent, *args, **kwargs)
@@ -39,6 +40,9 @@ class HistoryPanel(wx.Panel):
             columns=["Old requests", ],
             style=ResizableListCtrl.DEFAULT_LIST_CTRL_STYLE | wx.LC_NO_HEADER
         )
+        size = self.history_entries.GetSize()
+        size.width = self.MINIMAL_COLUMN_WIDTH
+        self.history_entries.SetMinSize(size)
         self.grid.Add(
             self.history_entries,
             pos=(1, 0),
