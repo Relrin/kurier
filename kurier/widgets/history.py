@@ -90,10 +90,11 @@ class HistoryPanel(wx.Panel):
         self.history_manager.AddState(message)
         self.ShowFullHistory()
 
-    def OnLoadState(self, _event):
+    def OnLoadState(self, event):
         index = self.history_entries.GetFirstSelected()
         state = self.history_manager.GetState(index)
         pub.sendMessage(LOAD_STATE_TOPIC, message=state)
+        event.Skip()
 
     def OnSearchByKeyword(self, event):
         keyword = event.GetString().strip()

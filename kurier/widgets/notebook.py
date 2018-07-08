@@ -77,6 +77,7 @@ class CustomAuiNotebook(AuiNotebook):
             event.GetRoutingKey()
         )[:self.MAX_TAB_LABEL_LENGTH]
         self.SetPageText(index, new_page_label)
+        event.Skip()
 
     def OnLoadState(self, message):
         page_index = self.AddNewTab()

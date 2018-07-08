@@ -154,7 +154,7 @@ class RequestUIBlock(IStateRestorable, ScrolledPanel):
             "body": self.request_data_notebook.GetRequestData(),
         }
 
-    def OnSendButtonClick(self, _event):
+    def OnSendButtonClick(self, event):
         if self.send_button.GetLabel() == self.SEND_REQUEST_BUTTON_LABEL:
             self.send_button.SetLabel(self.CANCEL_REQUEST_BUTTON_LABEL)
             request_parameters = self.GetRequestParameters()
@@ -172,14 +172,18 @@ class RequestUIBlock(IStateRestorable, ScrolledPanel):
             self.amqp_client.CancelRequest()
             self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
 
+        event.Skip()
+
     def OnAmqpResponse(self, event):
         response = event.GetResponse()
         pub.sendMessage(self.topic_name, message=response)
         pub.sendMessage(SAVE_STATE_TOPIC, message=self.GetRequestParameters())
         self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
+        event.Skip()
 
     def OnAmqpError(self, event):
         error = event.GetError()
         error_dialog = ErrorDialog(self, error, "AMQP error")
         error_dialog.ShowDialog()
         self.send_button.SetLabel(self.SEND_REQUEST_BUTTON_LABEL)
+        event.Skip()
