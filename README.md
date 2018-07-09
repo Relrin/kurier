@@ -7,7 +7,7 @@ This application was written for my needs in developing and testing AMQP-based m
 - Postman-like client, but for using with AMQP-based APIs
 - Validating queues, exchanges and routing keys for existing in the virtual host
 - Saving and restoring valid requests from the history
-- Search old requests in the history by the request exchange and routing key
+- Search old requests in the history by the request exchange and the routing key
 
 # Screenshots
 <img src="https://github.com/Relrin/kurier/blob/master/screenshots/windows-app.png" width="400"> | <img src="https://github.com/Relrin/kurier/blob/master/screenshots/mac-app.png" width="425">
