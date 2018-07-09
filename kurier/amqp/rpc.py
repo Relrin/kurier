@@ -1,3 +1,4 @@
+from socket import gaierror
 from threading import Event
 
 import wx
@@ -54,7 +55,7 @@ class RequestSendThread(Thread):
             self._connection = BlockingConnection(self._connection_parameters)
         except (ProbableAccessDeniedError, ProbableAuthenticationError):
             raise AmqpInvalidUrl("Invalid credentials to the AMQP node and vhost.")
-        except (IncompatibleProtocolError, ConnectionClosed, ValueError, IndexError):
+        except (IncompatibleProtocolError, ConnectionClosed, ValueError, IndexError, gaierror):
             raise AmqpInvalidUrl("The connection URL to the AMQP node is invalid.")
         return self._connection
 
