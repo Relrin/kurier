@@ -10,7 +10,7 @@ This application was written for my needs in developing and testing AMQP-based m
 - Search old requests in the history by the request exchange and routing key
 
 # Screenshots
-![](https://github.com/Relrin/kurier/blob/master/screenshots/windows-app.png) | ![]()
+![](https://github.com/Relrin/kurier/blob/master/screenshots/windows-app.png) | ![](https://github.com/Relrin/kurier/blob/master/screenshots/mac-app.png)
 :----------------------------------------------------------------------------:|:-------------------------:
   Windows                                                                     | Mac OS X 
 
