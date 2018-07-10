@@ -14,5 +14,47 @@ This application was written for my needs in developing and testing AMQP-based m
 :----------------------------------------------------------------------------:|:-------------------------:
   Windows                                                                     | Mac OS X 
 
+# Building an application
+For building an executable for your OS you will need to do the following steps:
+
+1) Install the Python 3. You can download the latest stable release of from [Python language website](https://www.python.org/) and install it manually or via other suitable package manager to you.
+2) Clone the git repository on your local machine:
+```bash
+git clone https://github.com/Relrin/kurier.git
+cd kurier
+```  
+3) Create a virtual environment for all our stuff:
+- For **virtualenv** use this:
+  ```bash
+  virtualenv --python=`which python3` venv
+  ```
+- For standard python **venv**:
+  ```bash
+  python3 -m venv venv
+  ```
+- For **virtualenvwrapper**:
+  ```bash
+  mkvirtualenv --python=`which python3` venv
+  ```
+4) Activate the virtual environent:
+- Windows
+  ```bash
+  ./venv/Scripts/activate
+  ```
+- Mac OS X
+  ```bash
+  source venv/bin/activate
+  ```
+5) Install the requirements:
+```bash
+pip install -r requirements.txt
+pip install -r requirements-build.txt
+```
+6) And run the build 
+```bash
+pyinstaller --clean --workpath=build/temp --distpath=build/dist --onefile --nowindowed --name=Kurier ./kurier/main.py 
+```
+7) Get the prepared executable for your OS in the `build/dist` directory
+
 # License
 The kurier project is published under BSD license. For more details read the [LICENSE](https://github.com/Relrin/kurier/blob/master/LICENSE) file.
