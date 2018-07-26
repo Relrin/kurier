@@ -6,6 +6,15 @@ from kurier.widgets.text_ctrl import TextCtrl
 
 class RequestDataTab(IStateRestorable, wx.Panel):
     TAB_SIZE = 4
+    REPLACED_SYMBOLS = [
+        ("\t", " " * TAB_SIZE),
+        ("\n", ""),
+
+        # Prevent replacing " and ' symbols onto duck-foot alternative on Mac OS X
+        ("’", "\'"),
+        ("”", "\""),
+        ("“", "\""),
+    ]
 
     def __init__(self, *args, **kwargs):
         super(RequestDataTab, self).__init__(*args, **kwargs)
@@ -24,10 +33,8 @@ class RequestDataTab(IStateRestorable, wx.Panel):
 
     def GetData(self):
         text = self.message_body_ctrl.GetValue()
-        text = text.replace("\t", " " * self.TAB_SIZE)
-        text = text.replace("\n", "")
 
-        # Prevent replacing " and ' symbols onto duck-foot alternative on Mac OS X
-        text = text.replace("’", "\'")
-        text = text.replace("”", "\"")
+        for symbol, replace_onto in self.REPLACED_SYMBOLS:
+            text = text.replace(symbol, replace_onto)
+
         return text
