@@ -25,5 +25,6 @@ class ResponseHeadersTab(wx.Panel):
         self.headers_ctrl.DeleteAllItems()
 
     def RenderHeader(self, headers):
+        headers = headers or {}
         self.DeleteAllRows()
         self.AddRows(list(headers.items()))
