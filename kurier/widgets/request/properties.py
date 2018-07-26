@@ -1,14 +1,17 @@
 import wx
 
-from kurier.constants import DEFAULT_MESSAGE_PROPERTIES
 from kurier.interfaces import IStateRestorable
+from kurier.utils.converters import StringConverter, IntegerConverter
 from kurier.widgets.list_ctrl import EditableListCtrl
 
 
 class RequestPropertiesTab(IStateRestorable, wx.Panel):
-    AVAILABLE_PROPERTIES = DEFAULT_MESSAGE_PROPERTIES
     USED_COLUMNS = ["Property name", "Value"]
     UTILITY_ROW_TEXT = "Click here for adding a new property..."
+
+    CUSTOM_CONVERTERS = {
+        "delivery_mode": (IntegerConverter, {"default": 2})
+    }
 
     def __init__(self, *args, **kwargs):
         super(RequestPropertiesTab, self).__init__(*args, **kwargs)
@@ -33,6 +36,10 @@ class RequestPropertiesTab(IStateRestorable, wx.Panel):
         properties = state.get("properties", {})
         for key, value in properties.items():
             self.AddNewProperty(key, value)
+
+    def GetHeaderConverter(self, header):
+        cls, options = self.CUSTOM_CONVERTERS.get(header, (StringConverter, {}))
+        return cls(**options)
 
     def ClearPropertiesTab(self):
         self.DeleteUtilityRow()
@@ -70,6 +77,7 @@ class RequestPropertiesTab(IStateRestorable, wx.Panel):
         for row in range(rows):
             key = self.properties_ctrl.GetItem(itemIdx=row, col=0).GetText().strip()
             value = self.properties_ctrl.GetItem(itemIdx=row, col=1).GetText()
-            properties[key] = value
+            converter = self.GetHeaderConverter(key)
+            properties[key] = converter.to_internal_value(value)
 
         return properties
