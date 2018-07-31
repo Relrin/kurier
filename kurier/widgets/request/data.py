@@ -9,9 +9,11 @@ class RequestDataTab(IStateRestorable, wx.Panel):
     REPLACED_SYMBOLS = [
         ("\t", " " * TAB_SIZE),
         ("\n", ""),
+        ("'", "\""),
 
         # Prevent replacing " and ' symbols onto duck-foot alternative on Mac OS X
-        ("’", "\'"),
+        ("’", "\""),
+        ("‘", "\""),
         ("”", "\""),
         ("“", "\""),
     ]
