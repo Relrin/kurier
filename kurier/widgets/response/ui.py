@@ -1,6 +1,6 @@
 import wx
 
-from wx.lib.pubsub import pub
+from pubsub import pub
 
 from kurier.constants import DEFAULT_GAP,  DEFAULT_VERTICAL_GAP, DEFAULT_HORIZONTAL_GAP
 from kurier.amqp.events import get_topic_name

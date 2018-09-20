@@ -4,7 +4,7 @@ from wx.lib.agw.aui import AuiNotebook
 from wx.lib.agw.aui import AUI_NB_CLOSE_ON_ACTIVE_TAB, AUI_NB_MIDDLE_CLICK_CLOSE, \
     AUI_NB_TAB_MOVE, EVT_AUINOTEBOOK_PAGE_CLOSED, AUI_NB_TAB_EXTERNAL_MOVE, \
     AUI_NB_TAB_SPLIT
-from wx.lib.pubsub import pub
+from pubsub import pub
 
 from kurier.constants import LOAD_STATE_TOPIC
 from kurier.amqp.events import EVT_UPDATE_AMQP_TAB_NAME

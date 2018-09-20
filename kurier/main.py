@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 import wx
-from wx.lib.pubsub import pub
+from pubsub import pub
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))  # NOQA
 
