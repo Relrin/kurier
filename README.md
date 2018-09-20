@@ -9,6 +9,10 @@ This application was written for my needs in developing and testing AMQP-based m
 - Saving and restoring valid requests from the history
 - Search old requests in the history by the request exchange and the routing key
 
+# Requirements
+- Python >= 3.7
+- wxPython >= 4.0
+
 # Screenshots
 <img src="https://github.com/Relrin/kurier/blob/master/screenshots/windows-app.png" width="400"> | <img src="https://github.com/Relrin/kurier/blob/master/screenshots/mac-app.png" width="425">
 :----------------------------------------------------------------------------:|:-------------------------:
@@ -50,11 +54,13 @@ cd kurier
 pip install -r requirements.txt
 pip install -r requirements-build.txt
 ```
-6) And run the build 
+6) And run the build from the root of the cloned repository
 ```bash
-pyinstaller --clean --workpath=build/temp --distpath=build/dist --onefile --nowindowed --name=Kurier ./kurier/main.py 
+pyinstaller --clean --workpath=build/temp --distpath=build/dist --onefile --nowindowed --noconsole --name=Kurier ./kurier/main.py 
 ```
 7) Get the prepared executable for your OS in the `build/dist` directory
+
+**Note**: In the case of the error with virtual environments on Mac OS X that *"This program needs access to the screen. Please run with a Framework build of python, and only when you are logged in on the main display of your Mac."* you will need to build CPython with Framework support on OS X. For more information read [this](https://wiki.wxpython.org/wxPythonVirtualenvOnMac) article.
 
 # License
 The kurier project is published under BSD license. For more details read the [LICENSE](https://github.com/Relrin/kurier/blob/master/LICENSE) file.
