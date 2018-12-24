@@ -1,6 +1,6 @@
 Faker==1.0.1
 flake8==3.5.0
 ipython==7.2.0
-pytest==3.6.2
+pytest==4.0.2
 pytest-cov==2.6.0
 pudb==2018.1
