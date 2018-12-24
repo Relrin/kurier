@@ -1,4 +1,4 @@
-Faker==0.8.16
+Faker==1.0.1
 flake8==3.5.0
 ipython==7.2.0
 pytest==3.6.2
