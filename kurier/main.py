@@ -41,7 +41,7 @@ class Application(wx.Frame):
 
         self.window_splitter.SplitVertically(self.history, self.work_area)
         self.window_splitter.SetSashGravity(self.MINIMUM_PANE_SIZE)
-        self.window_splitter.SetMinimumPaneSize(self.DEFAULT_SIZE[0] * self.MINIMUM_PANE_SIZE)
+        self.window_splitter.SetMinimumPaneSize(int(self.DEFAULT_SIZE[0] * self.MINIMUM_PANE_SIZE))
 
         self.sizer.Add(self.window_splitter, 1, wx.EXPAND | wx.ALL)
         self.SetSizer(self.sizer)

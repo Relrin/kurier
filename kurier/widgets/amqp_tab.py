@@ -31,7 +31,7 @@ class AmqpTab(IStateRestorable, wx.Panel):
 
         self.window_splitter.SplitHorizontally(self.request_ui_block, self.response_ui_block)
         self.window_splitter.SetSashGravity(self.MINIMUM_PANE_SIZE)
-        self.window_splitter.SetMinimumPaneSize(self.MINIMAL_PANEL_HEIGHT * self.MINIMUM_PANE_SIZE)
+        self.window_splitter.SetMinimumPaneSize(int(self.MINIMAL_PANEL_HEIGHT * self.MINIMUM_PANE_SIZE))
 
         self.sizer.Add(self.window_splitter, 1, wx.EXPAND | wx.ALL, border=DEFAULT_GAP)
         self.SetSizer(self.sizer)
