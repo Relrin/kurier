@@ -10,8 +10,8 @@ This application was written for my needs in developing and testing AMQP-based m
 - Search old requests in the history by the request exchange and the routing key
 
 # Requirements
-- Python >= 3.7
-- wxPython >= 4.0
+- Python >= 3.10
+- wxPython >= 4.2
 
 # Screenshots
 <img src="https://github.com/Relrin/kurier/blob/master/screenshots/windows-app.png" width="400"> | <img src="https://github.com/Relrin/kurier/blob/master/screenshots/mac-app.png" width="425">
